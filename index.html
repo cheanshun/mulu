@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>玄学工具集 · 玄空飞星 奇门阳盘 紫微斗数 雷诺曼</title>
+<meta name="description" content="玄学工具集：玄空飞星排盘、奇门阳盘排盘、紫微斗数排盘、雷诺曼在线抽牌占卜——理气、演局、推命、占验，四术并陈，一页通达。制作者：车坤德（乾一君）。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230d101b' stroke='%23c9a24e' stroke-width='2'/%3E%3Cpath d='M16 2a14 14 0 0 1 0 28 7 7 0 0 0 0-14 7 7 0 0 1 0-14z' fill='%23e8dec5'/%3E%3Ccircle cx='16' cy='9' r='2.2' fill='%230d101b'/%3E%3Ccircle cx='16' cy='23' r='2.2' fill='%23e8dec5'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@400;500&display=swap">
+<style>
+  /* ===== 设计令牌：墨夜 · 金线 · 朱砂 ===== */
+  :root {
+    --ink-0: #0a0c13;
+    --ink-1: #0d101b;
+    --ink-2: #131726;
+    --ink-3: #1b2033;
+    --gold: #c9a24e;
+    --gold-soft: #96793f;
+    --paper: #e8dec5;
+    --paper-dim: #a49a83;
+    --cinnabar: #a8332a;
+    --line: rgba(201, 162, 78, 0.26);
+    --line-soft: rgba(201, 162, 78, 0.14);
+    --serif: "Noto Serif SC", "Songti SC", "SimSun", serif;
+    --sans: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+    --kai: "Kaiti SC", "STKaiti", "KaiTi", "Noto Serif SC", serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { color-scheme: dark; }
+
+  body {
+    min-height: 100vh;
+    font-family: var(--serif);
+    color: var(--paper);
+    background-color: var(--ink-1);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ===== 背景层：生成纹理 + 墨色罩 + 星野 ===== */
+  .bg-texture,
+  .bg-veil,
+  .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .bg-texture {
+    z-index: 0;
+    background-image: url("https://aka.doubaocdn.com/s/svEi4ysAG1");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.34;
+  }
+
+  .bg-veil {
+    z-index: 1;
+    background: linear-gradient(180deg,
+      rgba(10, 12, 19, 0.42) 0%,
+      rgba(13, 16, 27, 0.55) 45%,
+      rgba(10, 12, 19, 0.92) 100%);
+  }
+
+  .stars { z-index: 2; overflow: hidden; }
+
+  .stars i {
+    position: absolute;
+    border-radius: 50%;
+    background: #dfd6bd;
+    box-shadow: 0 0 5px 1px rgba(223, 214, 189, 0.55);
+    animation: twinkle 4s ease-in-out infinite;
+  }
+
+  .stars i.gold {
+    background: var(--gold);
+    box-shadow: 0 0 7px 2px rgba(201, 162, 78, 0.6);
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.1; transform: scale(0.8); }
+    50% { opacity: 0.9; transform: scale(1.15); }
+  }
+
+  /* ===== 北斗七星：左上角星图 ===== */
+  .constellation {
+    position: fixed;
+    top: 20px;
+    left: 22px;
+    z-index: 3;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  /* ===== 内容容器 ===== */
+  .wrap {
+    position: relative;
+    z-index: 4;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ===== Hero ===== */
+  .hero { position: relative; z-index: 4; }
+
+  .hero-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: clamp(52px, 8vh, 84px) 24px 36px;
+  }
+
+  .compass {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -52%);
+    width: clamp(280px, 36vw, 420px);
+    height: auto;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .compass-spin {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: spin 150s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hero-text { position: relative; }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.55em;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .eyebrow .hair {
+    width: 34px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold));
+  }
+  .eyebrow .hair:last-child {
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+
+  .hero h1 {
+    margin-top: 16px;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: 0.16em;
+    text-indent: 0.16em;
+    color: var(--paper);
+    text-shadow: 0 0 34px rgba(201, 162, 78, 0.28);
+  }
+
+  .hero .sub {
+    margin-top: 14px;
+    font-size: clamp(0.9rem, 1.5vw, 1.05rem);
+    letter-spacing: 0.34em;
+    text-indent: 0.34em;
+    color: var(--gold);
+  }
+
+  .hero .sub2 {
+    margin-top: 8px;
+    font-size: 12.5px;
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
+    color: var(--paper-dim);
+  }
+
+  /* ===== 目录区 ===== */
+  .grid-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 6px 0 20px;
+    font-family: var(--sans);
+    font-size: 11.5px;
+    letter-spacing: 0.5em;
+    text-indent: 0.5em;
+    color: var(--gold-soft);
+    white-space: nowrap;
+  }
+
+  .grid-label .hair {
+    width: 32px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-soft));
+  }
+  .grid-label .hair:last-child {
+    background: linear-gradient(90deg, var(--gold-soft), transparent);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  /* ===== 工具卡片 ===== */
+  .card {
+    display: flex;
+    flex-direction: column;
+    padding: 22px 22px 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: linear-gradient(165deg, rgba(27, 32, 51, 0.92), rgba(15, 18, 29, 0.96));
+    transition: transform 0.32s ease, border-color 0.32s ease, box-shadow 0.32s ease;
+  }
+
+  a.card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(201, 162, 78, 0.6);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(201, 162, 78, 0.16);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .card-tag {
+    display: inline-block;
+    padding: 5px 13px;
+    border: 1px solid rgba(201, 162, 78, 0.5);
+    border-radius: 999px;
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.32em;
+    text-indent: 0.32em;
+    color: var(--gold);
+  }
+
+  .card-icon {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    color: var(--gold);
+    opacity: 0.92;
+    transition: color 0.32s ease, transform 0.32s ease;
+  }
+
+  a.card:hover .card-icon {
+    color: #e2bf72;
+    transform: scale(1.06);
+  }
+
+  .card-body { min-width: 0; }
+
+  .card h2 {
+    margin-top: 16px;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--paper);
+  }
+
+  .card .desc {
+    margin-top: 8px;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--paper-dim);
+    flex: 1;
+  }
+
+  .card-foot {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--line-soft);
+  }
+
+  .card-path {
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    color: var(--gold-soft);
+  }
+
+  .card-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    text-indent: 0.2em;
+    color: var(--paper);
+    transition: color 0.32s ease;
+  }
+
+  .card-go svg { transition: transform 0.32s ease; }
+
+  a.card:hover .card-go { color: var(--gold); }
+  a.card:hover .card-go svg { transform: translateX(5px); }
+
+  /* ===== 预留位卡片 ===== */
+  .card-placeholder {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 18px 28px;
+    border: 1px dashed rgba(201, 162, 78, 0.4);
+    background: rgba(19, 23, 38, 0.5);
+  }
+
+  .ph-icon {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    color: var(--gold-soft);
+    opacity: 0.75;
+  }
+
+  .card-placeholder h2 {
+    margin-top: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--paper-dim);
+  }
+
+  .card-placeholder .desc {
+    margin-top: 0;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: rgba(164, 154, 131, 0.72);
+  }
+
+  /* ===== 页脚 ===== */
+  footer {
+    position: relative;
+    z-index: 4;
+    margin-top: 48px;
+    border-top: 1px solid var(--line);
+  }
+
+  .foot-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 26px 24px 40px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px 28px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .seal {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    background: var(--cinnabar);
+    color: #f2e8d2;
+    font-family: var(--kai);
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.15;
+    border-radius: 3px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(242, 232, 210, 0.35);
+    transform: rotate(-2.5deg);
+  }
+
+  .owner {
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    color: var(--paper);
+  }
+
+  .copy {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    letter-spacing: 0.14em;
+    color: var(--paper-dim);
+  }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; gap: 12px; }
+    .constellation { display: none; }
+
+    /* 手机端：卡片改为紧凑横排（图标 + 标题说明 + 箭头），首屏容纳全部四张 */
+    .card {
+      flex-direction: row;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+    }
+    .card-tag { display: none; }
+    .card-head { flex: none; }
+    .card-body { flex: 1; }
+    .card h2 { margin-top: 0; font-size: 16px; }
+    .card .desc {
+      margin-top: 5px;
+      font-size: 12.5px;
+      line-height: 1.55;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-foot {
+      flex: none;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+    .card-path { display: none; }
+    .card-go { font-size: 13px; letter-spacing: 0.05em; text-indent: 0; white-space: nowrap; }
+
+    .card-placeholder {
+      gap: 12px;
+      padding: 14px 16px;
+    }
+    .card-placeholder h2 { font-size: 14px; }
+    .card-placeholder .desc { font-size: 12px; letter-spacing: 0.04em; }
+
+    .foot-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-inner { padding-top: 34px; padding-bottom: 26px; }
+    .compass { display: none; }
+    .eyebrow { font-size: 11px; }
+    .hero h1 { font-size: 2rem; margin-top: 12px; }
+    .hero .sub { font-size: 0.86rem; letter-spacing: 0.28em; text-indent: 0.28em; }
+    .hero .sub2 { display: none; }
+    .grid-label { display: none; }
+    .card h2 { font-size: 15px; }
+    .card .desc { -webkit-line-clamp: 1; }
+  }
+
+  /* 矮屏（小笔记本）也保证首屏看全目录 */
+  @media (max-height: 780px) and (min-width: 861px) {
+    .hero-inner { padding: 36px 24px 24px; }
+    .hero h1 { font-size: 2.4rem; margin-top: 10px; }
+    .hero .sub { margin-top: 10px; }
+    .hero .sub2 { display: none; }
+    .grid-label { margin: 4px 0 14px; }
+    .card { padding: 16px 18px 14px; }
+    .card h2 { margin-top: 10px; font-size: 17px; }
+    .card .desc { font-size: 12.5px; line-height: 1.6; }
+    .card-foot { margin-top: 12px; padding-top: 10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .compass-spin,
+    .stars i { animation: none !important; }
+    a.card, .card-icon, .card-go svg { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===== 氛围背景层 ===== -->
+  <div class="bg-texture" aria-hidden="true"></div>
+  <div class="bg-veil" aria-hidden="true"></div>
+  <div class="stars" id="stars" aria-hidden="true"></div>
+
+  <!-- ===== 北斗星图 ===== -->
+  <svg class="constellation" width="220" height="160" viewBox="0 0 300 210" fill="none" aria-hidden="true">
+    <path d="M55 150 L88 118 L118 96 L146 100 M146 100 L188 122 L218 150 L244 182"
+          stroke="rgba(201,162,78,0.55)" stroke-width="1"/>
+    <g fill="#c9a24e">
+      <circle cx="55" cy="150" r="2.6"/><circle cx="88" cy="118" r="2.6"/>
+      <circle cx="118" cy="96" r="2.6"/><circle cx="146" cy="100" r="2.6"/>
+      <circle cx="188" cy="122" r="2.6"/><circle cx="218" cy="150" r="2.6"/>
+      <circle cx="244" cy="182" r="2.6"/>
+    </g>
+    <g fill="rgba(201,162,78,0.22)">
+      <circle cx="55" cy="150" r="5"/><circle cx="88" cy="118" r="5"/>
+      <circle cx="118" cy="96" r="5"/><circle cx="146" cy="100" r="5"/>
+      <circle cx="188" cy="122" r="5"/><circle cx="218" cy="150" r="5"/>
+      <circle cx="244" cy="182" r="5"/>
+    </g>
+  </svg>
+
+  <!-- ===== Hero ===== -->
+  <header class="hero">
+    <div class="hero-inner">
+      <svg class="compass" id="compass" viewBox="0 0 480 480" aria-hidden="true"></svg>
+      <div class="hero-text">
+        <p class="eyebrow"><span class="hair"></span>玄 学 工 具 集<span class="hair"></span></p>
+        <h1>玄门四术</h1>
+        <p class="sub">理气 · 演局 · 推命 · 占验</p>
+        <p class="sub2">四术并陈，一页通达</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== 工具目录 ===== -->
+  <main class="wrap">
+    <p class="grid-label"><span class="hair"></span>工 具 目 录<span class="hair"></span></p>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <!-- ===== 页脚 ===== -->
+  <footer>
+    <div class="foot-inner">
+      <div class="brand">
+        <span class="seal" aria-hidden="true"><span>乾</span><span>一</span></span>
+        <p class="owner">制作者：车坤德 ｜ 工作号：乾一君 ｜ wechat：aixuankong</p>
+      </div>
+      <p class="copy">© 2026 车坤德 · 保留所有权利</p>
+    </div>
+  </footer>
+
+<script>
+  /* ============================================================
+   * 工具列表 —— 以后新增项目，只需在此数组末尾追加一条：
+   *   name  卡片标题（网站名称）
+   *   tag   分类标签（如：理气 / 演局 / 推命 / 占验）
+   *   path  网址短路径，如 /qimen
+   *   url   网站完整地址
+   *   desc  一句功能说明
+   *   icon  图标键名，取值 jiugong / dunjia / xingdou / paipai，
+   *         或自行在 ICONS 中新增一个 24x24 的 SVG 路径
+   * ============================================================ */
+  const TOOLS = [
+    {
+      name: '玄空飞星排盘',
+      tag: '理气',
+      path: '/xuankong',
+      url: 'https://cheanshun.github.io/xuankong/',
+      desc: '九宫飞布，山向立极。观星躔之气运，断宅墓之兴衰，为风水理气之正宗。',
+      icon: 'jiugong'
+    },
+    {
+      name: '奇门阳盘排盘',
+      tag: '演局',
+      path: '/qimen',
+      url: 'https://cheanshun.github.io/qimen/',
+      desc: '天地人神四盘，八门九星遁甲。择时趋避，运筹帷幄，为决策演局之枢机。',
+      icon: 'dunjia'
+    },
+    {
+      name: '紫微斗数排盘',
+      tag: '推命',
+      path: '/ziwei',
+      url: 'https://cheanshun.github.io/ziwei/',
+      desc: '十二宫垣列宿，星曜庙旺落陷。安命立身，观一生之休咎荣枯。',
+      icon: 'xingdou'
+    },
+    {
+      name: '雷诺曼在线抽牌占卜',
+      tag: '占验',
+      path: '/leinuoman',
+      url: 'https://cheanshun.github.io/leinuoman/',
+      desc: '三十六签信手拈来，近事吉凶一望即明。随心所问，即时而占。',
+      icon: 'paipai'
+    }
+  ];
+
+  /* ===== 卡片图标（24x24 手写线稿 SVG）===== */
+  const ICONS = {
+    jiugong: '<rect x="3" y="3" width="18" height="18" rx="1.5"/>' +
+             '<path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>' +
+             '<circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/>',
+    dunjia: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.2"/>' +
+            '<path d="M12 4.5v2.6M12 16.9v2.6M4.5 12h2.6M16.9 12h2.6"/>' +
+            '<path d="M12 6.5l1.7 3.8 3.8 1.7-3.8 1.7L12 17.5l-1.7-3.8-3.8-1.7 3.8-1.7z"/>' +
+            '<circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>',
+    xingdou: '<path d="M12 2.2l1.8 6.2 6.2 1.8-6.2 1.8L12 18.2l-1.8-6.2L4 10.2l6.2-1.8z"/>' +
+             '<circle cx="3.6" cy="18.6" r="1.1" fill="currentColor" stroke="none"/>' +
+             '<circle cx="20.4" cy="19.2" r="1.1" fill="currentColor" stroke="none"/>' +
+             '<circle cx="17.6" cy="4.2" r="0.9" fill="currentColor" stroke="none"/>',
+    paipai: '<rect x="3.4" y="6.2" width="11.4" height="14.8" rx="1.6" transform="rotate(-9 9.1 13.6)"/>' +
+            '<rect x="9.2" y="3" width="11.4" height="14.8" rx="1.6" transform="rotate(9 14.9 10.4)"/>' +
+            '<path d="M15.6 8.6l1 1-1 1-1-1z" fill="currentColor" stroke="none"/>' +
+            '<path d="M8.2 12.9l.95.95-.95.95-.95-.95z" fill="currentColor" stroke="none"/>'
+  };
+
+  const ARROW = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" ' +
+    'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M4 12h15M13 5l7 7-7 7"/></svg>';
+
+  /* ===== 渲染工具卡片 ===== */
+  function renderGrid() {
+    const grid = document.getElementById('grid');
+    let html = '';
+    for (const t of TOOLS) {
+      html +=
+        '<a class="card" href="' + t.url + '" target="_blank" rel="noopener">' +
+          '<div class="card-head">' +
+            '<span class="card-tag">' + t.tag + '</span>' +
+            '<svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+              'stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+              ICONS[t.icon] +
+            '</svg>' +
+          '</div>' +
+          '<div class="card-body">' +
+            '<h2>' + t.name + '</h2>' +
+            '<p class="desc">' + t.desc + '</p>' +
+          '</div>' +
+          '<div class="card-foot">' +
+            '<span class="card-path">' + t.path + '</span>' +
+            '<span class="card-go">进入' + ARROW + '</span>' +
+          '</div>' +
+        '</div>' +
+        '</a>';
+    }
+    /* 预留导航位：新增工具会自动排到它前面 */
+    html +=
+      '<div class="card card-placeholder">' +
+        '<svg class="ph-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+          'stroke-width="1.5" stroke-linecap="round" aria-hidden="true">' +
+          '<path d="M12 5v14M5 12h14"/>' +
+        '</svg>' +
+        '<h2>更多工具 · 敬请期待</h2>' +
+        '<p class="desc">此处为预留导航位，后续新增排盘与占卜工具将依次陈列于此。</p>' +
+      '</div>';
+    grid.innerHTML = html;
+  }
+
+  /* ===== 罗盘：后天八卦 + 洛书九宫 + 太极（数据驱动生成）===== */
+  const TRIGRAMS = [
+    { name: '离', lines: [1, 0, 1], a: 0 },
+    { name: '坤', lines: [0, 0, 0], a: 45 },
+    { name: '兑', lines: [0, 1, 1], a: 90 },
+    { name: '乾', lines: [1, 1, 1], a: 135 },
+    { name: '坎', lines: [0, 1, 0], a: 180 },
+    { name: '艮', lines: [0, 0, 1], a: 225 },
+    { name: '震', lines: [1, 0, 0], a: 270 },
+    { name: '巽', lines: [1, 1, 0], a: 315 }
+  ];
+
+  const LOSHU = [[4, 9, 2], [3, 5, 7], [8, 1, 6]];
+
+  function trigramSvg(lines, a) {
+    const g = 26, step = 13;
+    let marks = '';
+    lines.forEach(function (line, i) {
+      const y = -206 + (i - 1) * step;
+      if (line === 1) {
+        marks += '<line x1="' + (-g / 2) + '" y1="' + y + '" x2="' + (g / 2) + '" y2="' + y + '"/>';
+      } else {
+        marks += '<line x1="' + (-g / 2) + '" y1="' + y + '" x2="' + (-g / 6 - 2) + '" y2="' + y + '"/>' +
+                 '<line x1="' + (g / 6 + 2) + '" y1="' + y + '" x2="' + (g / 2) + '" y2="' + y + '"/>';
+      }
+    });
+    return '<g transform="translate(240,240) rotate(' + a + ')">' +
+           '<g stroke="rgba(201,162,78,0.66)" stroke-width="3" stroke-linecap="round">' + marks + '</g>' +
+           '</g>';
+  }
+
+  function loshuSvg() {
+    const c = 240, half = 84, cell = 56;
+    let s = '<g stroke="rgba(201,162,78,0.22)" stroke-width="1">' +
+            '<rect x="' + (c - half) + '" y="' + (c - half) + '" width="' + (half * 2) +
+              '" height="' + (half * 2) + '" fill="rgba(13,16,27,0.28)"/>' +
+            '<path d="M' + (c - half) + ' ' + (c - cell / 2) + 'h' + (half * 2) +
+              'M' + (c - half) + ' ' + (c + cell / 2) + 'h' + (half * 2) +
+              'M' + (c - cell / 2) + ' ' + (c - half) + 'v' + (half * 2) +
+              'M' + (c + cell / 2) + ' ' + (c - half) + 'v' + (half * 2) + '"/>' +
+            '</g>';
+    s += '<g fill="rgba(201,162,78,0.85)" font-family="Noto Serif SC, serif" font-size="26" text-anchor="middle" dominant-baseline="central">';
+    LOSHU.forEach(function (row, r) {
+      row.forEach(function (n, col) {
+        s += '<text x="' + (c - half + cell * col + cell / 2) + '" y="' + (c - half + cell * r + cell / 2) + '">' + n + '</text>';
+      });
+    });
+    s += '</g>';
+    return s;
+  }
+
+  function taijiSvg() {
+    return '<circle cx="240" cy="240" r="46" fill="none" stroke="rgba(201,162,78,0.5)" stroke-width="1"/>' +
+      '<path d="M240 194a46 46 0 0 1 0 92a23 23 0 0 0 0-46a23 23 0 0 1 0-46z" fill="rgba(201,162,78,0.55)"/>' +
+      '<circle cx="240" cy="217" r="7" fill="#0d101b"/>' +
+      '<circle cx="240" cy="263" r="7" fill="rgba(201,162,78,0.55)"/>';
+  }
+
+  function buildCompass() {
+    const el = document.getElementById('compass');
+    const stroke = 'stroke="rgba(201,162,78,0.4)"';
+    let s =
+      '<g class="compass-spin">' +
+        '<circle cx="240" cy="240" r="234" fill="none" ' + stroke + ' stroke-width="1"/>' +
+        '<circle cx="240" cy="240" r="222" fill="none" stroke="rgba(201,162,78,0.4)" stroke-width="1.4" ' +
+          'stroke-dasharray="2.6 16.8"/>' +
+        '<circle cx="240" cy="240" r="180" fill="none" ' + stroke + ' stroke-width="1"/>' +
+        TRIGRAMS.map(function (t) { return trigramSvg(t.lines, t.a); }).join('') +
+        loshuSvg() +
+        '<circle cx="240" cy="240" r="118" fill="none" ' + stroke + ' stroke-width="1"/>' +
+        taijiSvg() +
+      '</g>';
+    el.innerHTML = s;
+  }
+
+  /* ===== 星野：随机星辰 ===== */
+  function makeStars() {
+    const wrap = document.getElementById('stars');
+    let html = '';
+    for (let i = 0; i < 150; i++) {
+      const size = (Math.random() * 1.5 + 0.7).toFixed(2);
+      const cls = Math.random() < 0.16 ? ' gold' : '';
+      const dur = (Math.random() * 5 + 3).toFixed(2);
+      const delay = (Math.random() * 6).toFixed(2);
+      html += '<i class="' + cls + '" style="left:' + (Math.random() * 100).toFixed(2) +
+        '%;top:' + (Math.random() * 100).toFixed(2) +
+        '%;width:' + size + 'px;height:' + size +
+        'px;animation-duration:' + dur + 's;animation-delay:' + delay + 's"></i>';
+    }
+    wrap.innerHTML = html;
+  }
+
+  renderGrid();
+  buildCompass();
+  makeStars();
+</script>
+</body>
+</html>
