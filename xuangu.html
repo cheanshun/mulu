@@ -2138,7 +2138,7 @@ eval(new TextDecoder('utf-8').decode(U));
 })();
 </script>
 <script>
-(function(){try{var o=location.origin;if(!o||o.indexOf("http")!==0)return;var t=new XMLHttpRequest();t.open("GET",o+"/visit/track?src=stock_single",true);t.timeout=2500;t.onerror=function(){};t.send();var s=new XMLHttpRequest();s.open("GET",o+"/visit/stats?src=stock_single",true);s.timeout=3500;s.onreadystatechange=function(){if(s.readyState===4&&s.status===200){try{var d=JSON.parse(s.responseText);if(d.ok){var e=document.getElementById("visit-info");if(e){e.textContent="本页累计访客 "+d.totalUv+" 人 · 今日访客 "+d.todayUv+" 人";}}}catch(x){}}};s.onerror=function(){var e=document.getElementById("visit-info");if(e)e.textContent="";};s.send();}catch(e){}})();
+(function(){try{var o=location.origin||"";var api=o;if(o.indexOf("http")!==0){api="http://127.0.0.1:8080";}var t=new XMLHttpRequest();t.open("GET",api+"/visit/track?src=stock_single",true);t.timeout=2500;t.onerror=function(){};t.send();var s=new XMLHttpRequest();s.open("GET",api+"/visit/stats?src=stock_single",true);s.timeout=3500;s.onreadystatechange=function(){if(s.readyState===4&&s.status===200){try{var d=JSON.parse(s.responseText);if(d.ok){var e=document.getElementById("visit-info");if(e){e.textContent="本页累计访客 "+d.totalUv+" 人 · 今日访客 "+d.todayUv+" 人";}}}catch(x){}}};s.onerror=function(){var e=document.getElementById("visit-info");if(e)e.textContent="";};s.send();}catch(e){}})();
 </script>
 </body>
 </html>
