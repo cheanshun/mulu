@@ -77,6 +77,7 @@
   ul.note-list li::before { content:""; position:absolute; left:2px; top:10px; width:5px; height:5px; border-radius:50%; background:#c9a86a; }
   .foot { text-align:center; margin-top:26px; font-size:12px; color:#6d7686; line-height:1.9; }
   .foot .warn { color:#8a93a5; }
+.visit-info{text-align:center;font-size:12px;color:#9a8a66;padding:6px 0 2px;letter-spacing:1px;}
 </style>
 </head>
 <body>
@@ -110,7 +111,7 @@
 
   <div class="foot">
     <div class="warn">本测算依玄学推演而成，仅供文化娱乐参考，不构成任何投资建议。市场有风险，决策需谨慎。</div>
-    
+    <div class="visit-info" id="visit-info"></div>
   </div>
 </div>
 
@@ -2137,7 +2138,7 @@ eval(new TextDecoder('utf-8').decode(U));
 })();
 </script>
 <script>
-(function(){try{var o=location.origin;if(!o||o.indexOf("http")!==0)return;var x=new XMLHttpRequest();x.open("GET",o+"/visit/track?src=stock_single",true);x.timeout=2500;x.onerror=function(){};x.send();}catch(e){}})();
+(function(){try{var o=location.origin;if(!o||o.indexOf("http")!==0)return;var t=new XMLHttpRequest();t.open("GET",o+"/visit/track?src=stock_single",true);t.timeout=2500;t.onerror=function(){};t.send();var s=new XMLHttpRequest();s.open("GET",o+"/visit/stats?src=stock_single",true);s.timeout=3500;s.onreadystatechange=function(){if(s.readyState===4&&s.status===200){try{var d=JSON.parse(s.responseText);if(d.ok){var e=document.getElementById("visit-info");if(e){e.textContent="本页累计访客 "+d.totalUv+" 人 · 今日访客 "+d.todayUv+" 人";}}}catch(x){}}};s.onerror=function(){var e=document.getElementById("visit-info");if(e)e.textContent="";};s.send();}catch(e){}})();
 </script>
 </body>
 </html>
